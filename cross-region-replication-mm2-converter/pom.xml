@@ -51,17 +51,6 @@
             <version>1.7.7</version>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>software.amazon.kinesis</groupId>-->
-        <!--            <artifactId>amazon-kinesis-client</artifactId>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>software.amazon.awssdk</groupId>-->
-        <!--                    <artifactId>apache-client</artifactId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
-
 
         <dependency>
             <groupId>com.amazonaws</groupId>
