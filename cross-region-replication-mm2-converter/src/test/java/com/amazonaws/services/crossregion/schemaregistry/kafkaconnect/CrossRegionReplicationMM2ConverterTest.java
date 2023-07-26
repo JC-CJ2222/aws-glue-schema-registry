@@ -324,7 +324,7 @@ public class CrossRegionReplicationMM2ConverterTest {
         props.put(AWSSchemaRegistryConstants.REGISTRY_NAME, "default-registry");
         props.put(AWSSchemaRegistryConstants.SCHEMA_NAME, "t2");
         props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://test");
-        props.put(AWSSchemaRegistryConstants.AWS_SRC_ENDPOINT, "https://test");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT, "https://test");
         props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
         props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
 

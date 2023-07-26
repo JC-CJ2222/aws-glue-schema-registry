@@ -43,10 +43,10 @@ public class GlueSchemaRegistryConfiguration {
     private AWSSchemaRegistryConstants.COMPRESSION compressionType = AWSSchemaRegistryConstants.COMPRESSION.NONE;
     private String endPoint;
     private String region;
-    private String srcEndPoint;
-    private String srcRegion;
-    private String tgtEndPoint;
-    private String tgtRegion;
+    private String sourceEndPoint;
+    private String sourceRegion;
+    private String targetEndPoint;
+    private String targetRegion;
     private long timeToLiveMillis = 24 * 60 * 60 * 1000L;
     private int cacheSize = 200;
     private AvroRecordType avroRecordType;
@@ -88,10 +88,10 @@ public class GlueSchemaRegistryConfiguration {
     }
 
     private void buildSchemaRegistryConfigs(Map<String, ?> configs) {
-        validateAndSetAWSSrcRegion(configs);
-        validateAndSetAWSSrcEndpoint(configs);
-        validateAndSetAWSTgtRegion(configs);
-        validateAndSetAWSTgtEndpoint(configs);
+        validateAndSetAWSSourceRegion(configs);
+        validateAndSetAWSSourceEndpoint(configs);
+        validateAndSetAWSTargetRegion(configs);
+        validateAndSetAWSTargetEndpoint(configs);
         validateAndSetAWSRegion(configs);
         validateAndSetAWSEndpoint(configs);
         validateAndSetRegistryName(configs);
@@ -159,17 +159,17 @@ public class GlueSchemaRegistryConfiguration {
         }
     }
 
-    private void validateAndSetAWSSrcRegion(Map<String, ?> configs) {
-        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_SRC_REGION)) {
-            this.srcRegion = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_SRC_REGION));
+    private void validateAndSetAWSSourceRegion(Map<String, ?> configs) {
+        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_SOURCE_REGION)) {
+            this.sourceRegion = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION));
         }
     }
 
-    private void validateAndSetAWSTgtRegion(Map<String, ?> configs) {
-        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_TGT_REGION)) {
-            this.tgtRegion = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_TGT_REGION));
+    private void validateAndSetAWSTargetRegion(Map<String, ?> configs) {
+        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_TARGET_REGION)) {
+            this.targetRegion = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_TARGET_REGION));
         } else {
-            this.tgtRegion = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_REGION));
+            this.targetRegion = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_REGION));
         }
     }
 
@@ -205,17 +205,17 @@ public class GlueSchemaRegistryConfiguration {
         }
     }
 
-    private void validateAndSetAWSSrcEndpoint(Map<String, ?> configs) {
-        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_SRC_ENDPOINT)) {
-            this.srcEndPoint = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_SRC_ENDPOINT));
+    private void validateAndSetAWSSourceEndpoint(Map<String, ?> configs) {
+        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT)) {
+            this.sourceEndPoint = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT));
         }
     }
 
-    private void validateAndSetAWSTgtEndpoint(Map<String, ?> configs) {
-        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_TGT_ENDPOINT)) {
-            this.tgtEndPoint = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_TGT_ENDPOINT));
+    private void validateAndSetAWSTargetEndpoint(Map<String, ?> configs) {
+        if (isPresent(configs, AWSSchemaRegistryConstants.AWS_TARGET_ENDPOINT)) {
+            this.targetEndPoint = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_TARGET_ENDPOINT));
         } else {
-            this.tgtEndPoint = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_ENDPOINT));
+            this.targetEndPoint = String.valueOf(configs.get(AWSSchemaRegistryConstants.AWS_ENDPOINT));
         }
     }
 

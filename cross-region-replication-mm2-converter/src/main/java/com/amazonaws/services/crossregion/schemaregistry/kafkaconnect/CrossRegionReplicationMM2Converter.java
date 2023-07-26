@@ -53,6 +53,7 @@ public class CrossRegionReplicationMM2Converter implements Converter {
             AwsCredentialsProvider credentialsProvider,
             GlueSchemaRegistryDeserializerImpl deserializerImpl,
             GlueSchemaRegistrySerializerImpl serializerImpl) {
+
         this.deserializationFacade = deserializationFacade;
         this.serializationFacade = serializationFacade;
         this.credentialsProvider = credentialsProvider;
@@ -77,8 +78,8 @@ public class CrossRegionReplicationMM2Converter implements Converter {
         Map<String, Object> sourceConfigs = new HashMap<>(configs);
         Map<String, Object> targetConfigs = new HashMap<>(configs);
 
-        sourceConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_SRC_REGION));
-        targetConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_TGT_REGION));
+        sourceConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION));
+        targetConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_TARGET_REGION));
 
         deserializationFacade =
                 GlueSchemaRegistryDeserializationFacade.builder()
@@ -86,21 +87,15 @@ public class CrossRegionReplicationMM2Converter implements Converter {
                         .configs(sourceConfigs)
                         .build();
 
-        serializationFacade =
+        serializationFacade   =
                 GlueSchemaRegistrySerializationFacade.builder()
                         .credentialProvider(credentialsProvider)
                         .configs(targetConfigs)
                         .build();
 
-        serializer = new GlueSchemaRegistrySerializerImpl(credentialsProvider, new GlueSchemaRegistryConfiguration(targetConfigs));
+        serializer   = new GlueSchemaRegistrySerializerImpl(credentialsProvider, new GlueSchemaRegistryConfiguration(targetConfigs));
 
         deserializer = new GlueSchemaRegistryDeserializerImpl(credentialsProvider, new GlueSchemaRegistryConfiguration(sourceConfigs));
-
-
-//        deserializationFacade = new GlueSchemaRegistryDeserializationFacade(new GlueSchemaRegistryConfiguration(sourceConfigs), credentialsProvider);
-//
-//        serializationFacade = new GlueSchemaRegistrySerializationFacade(credentialsProvider, null, new GlueSchemaRegistryConfiguration(targetConfigs), null, null);
-
 
     }
 
@@ -118,6 +113,7 @@ public class CrossRegionReplicationMM2Converter implements Converter {
             UUID uuid = registerSchema(returnedSchema);
 
             return encodedByte;
+
         } catch (SerializationException | AWSSchemaRegistryException e){
             throw new DataException("Converting Kafka Connect data to byte[] failed due to serialization/deserialization error: ", e);
         }
@@ -139,7 +135,6 @@ public class CrossRegionReplicationMM2Converter implements Converter {
             throw new NullPointerException("Empty Data");
         }
             return deserializationFacade.getSchema(data);
-
     }
 
     /**
@@ -153,6 +148,7 @@ public class CrossRegionReplicationMM2Converter implements Converter {
             String schemaName = schema.getSchemaName();
             String dataFormat = schema.getDataFormat();
             AWSSerializerInput input = new AWSSerializerInput(schemaDefinition, schemaName, dataFormat, null);
+
             return serializationFacade.getOrRegisterSchemaVersion(input);
         } catch (Exception e){
             throw new DataException("Schema can't be register");
