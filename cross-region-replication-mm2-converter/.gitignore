@@ -41,3 +41,11 @@ build/
 ### Mac OS ###
 .DS_Store
 
+
+/src/test/avro/AvroMessage.avsc
+/src/test/avro/DocTestRecord.avsc
+/src/test/avro/Enum.avsc
+/src/test/avro/EnumUnion.avsc
+/src/test/avro/MultiTypeUnionMessage.avsc
+/src/test/avro/RepeatedTypeWithDefault.avsc
+/src/test/avro/RepeatedTypeWithDocFull.avsc
