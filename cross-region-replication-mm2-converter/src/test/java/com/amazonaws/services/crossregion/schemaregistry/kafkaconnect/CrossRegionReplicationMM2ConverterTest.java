@@ -319,12 +319,14 @@ public class CrossRegionReplicationMM2ConverterTest {
     private Map<String, Object> getTestProperties() {
         Map<String, Object> props = new HashMap<>();
 
-        props.put("SOURCE_REGION", "us-west-2");
-        props.put("TARGET_REGION", "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_REGION, "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_REGION, "us-west-2");
+        props.put(AWSSchemaRegistryConstants.AWS_TARGET_REGION, "us-east-1");
         props.put(AWSSchemaRegistryConstants.REGISTRY_NAME, "default-registry");
         props.put(AWSSchemaRegistryConstants.SCHEMA_NAME, "t2");
-        props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://test");
-        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT, "https://test");
+        props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://glue.us-east-1.amazonaws.com");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT, "https://glue.us-west-2.amazonaws.com");
+        props.put(AWSSchemaRegistryConstants.AWS_TARGET_ENDPOINT, "https://glue.us-east-1.amazonaws.com");
         props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
         props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
 

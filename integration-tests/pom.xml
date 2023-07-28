@@ -25,6 +25,18 @@
     <name>AWS Glue Schema Registry Integration Tests</name>
     <description>The AWS Glue Schema Registry tests would do a sanity check for the schema registry library.
     </description>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>15</source>
+                    <target>15</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <packaging>jar</packaging>
     <url>https://aws.amazon.com/glue</url>
 
@@ -187,6 +199,12 @@
             <artifactId>schema-registry-serde</artifactId>
             <version>${parent.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>CrossRegionReplicationMm2Converter</artifactId>
+            <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
