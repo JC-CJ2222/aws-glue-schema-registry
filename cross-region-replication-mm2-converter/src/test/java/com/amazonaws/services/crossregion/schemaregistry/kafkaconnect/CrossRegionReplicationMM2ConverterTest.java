@@ -73,7 +73,7 @@ public class CrossRegionReplicationMM2ConverterTest {
     }
 
     /**
-     * Test for Converter config method.
+     * Test for Mm2Converter config method.
      */
     @Test
     public void testConverter_configure() {
@@ -86,7 +86,37 @@ public class CrossRegionReplicationMM2ConverterTest {
         assertNotNull(converter.getSerializer());
         assertNotNull(converter.getDeserializer());
         assertNotNull(converter.isKey());
+    }
 
+    /**
+     * Test for Mm2Converter when source region config is not provided.
+     */
+    @Test
+    public void testConverter_sourceRegionNotProvided_throwsException(){
+        converter = new CrossRegionReplicationMM2Converter();
+        Exception exception = assertThrows(DataException.class, () -> converter.configure(getNoSourceRegionProperties(), false));
+        assertEquals("Source Region is not provided.", exception.getMessage());
+    }
+
+    /**
+     * Test for Mm2Converter when source region config is not provided.
+     */
+    @Test
+    public void testConverter_targetRegionNotProvided_throwsException(){
+        converter = new CrossRegionReplicationMM2Converter();
+        Exception exception = assertThrows(DataException.class, () -> converter.configure(getNoTargetRegionProperties(), false));
+        assertEquals("Target Region is not provided.", exception.getMessage());
+    }
+
+    /**
+     * Test for Mm2Converter when source region config is not provided.
+     */
+    @Test
+    public void testConverter_targetRegionReplacedByRegion_Succeeds(){
+        converter = new CrossRegionReplicationMM2Converter();
+        converter.configure(getTargetRegionReplacedProperties(), false);
+        assertNotNull(converter.getSerializationFacade());
+        assertNotNull(converter.getSerializer());
     }
 
     /**
@@ -280,14 +310,15 @@ public class CrossRegionReplicationMM2ConverterTest {
 
 
     /**
-     * To create a map of configurations w/o source region.
+     * To create a map of configurations without source region.
      *
      * @return a map of configurations
      */
-    private Map<String, Object> getNoSourceProperties() {
+    private Map<String, Object> getNoSourceRegionProperties() {
         Map<String, Object> props = new HashMap<>();
 
-        props.put("TARGET_REGION", "us-west-2");
+        props.put(AWSSchemaRegistryConstants.AWS_REGION, "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_TARGET_REGION, "us-east-1");
         props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://test");
         props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
         props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
@@ -296,14 +327,31 @@ public class CrossRegionReplicationMM2ConverterTest {
     }
 
     /**
-     * To create a map of configurations w/o source region.
+     * To create a map of configurations without target region.
      *
      * @return a map of configurations
      */
-    private Map<String, Object> getNoTargetProperties() {
+    private Map<String, Object> getNoTargetRegionProperties() {
         Map<String, Object> props = new HashMap<>();
 
-        props.put("SOURCE_REGION", "us-west-2");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_REGION, "us-west-2");
+        props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://test");
+        props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
+        props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
+
+        return props;
+    }
+
+    /**
+     * To create a map of configurations without target region, but is replaced by the provided region config.
+     *
+     * @return a map of configurations
+     */
+    private Map<String, Object> getTargetRegionReplacedProperties() {
+        Map<String, Object> props = new HashMap<>();
+
+        props.put(AWSSchemaRegistryConstants.AWS_REGION, "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_REGION, "us-west-2");
         props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://test");
         props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
         props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
@@ -319,10 +367,10 @@ public class CrossRegionReplicationMM2ConverterTest {
     private Map<String, Object> getTestProperties() {
         Map<String, Object> props = new HashMap<>();
 
-        props.put("SOURCE_REGION", "us-west-2");
-        props.put("TARGET_REGION", "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_REGION, "us-west-2");
+        props.put(AWSSchemaRegistryConstants.AWS_TARGET_REGION, "us-east-1");
         props.put(AWSSchemaRegistryConstants.REGISTRY_NAME, "default-registry");
-        props.put(AWSSchemaRegistryConstants.SCHEMA_NAME, "t2");
+        props.put(AWSSchemaRegistryConstants.SCHEMA_NAME, "test_schema");
         props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://test");
         props.put(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT, "https://test");
         props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);

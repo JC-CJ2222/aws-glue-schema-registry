@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import software.amazon.awssdk.services.glue.model.Compatibility;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ public class GlueSchemaRegistryConfiguration {
     private Map<String, String> tags = new HashMap<>();
     private Map<String, String> metadata;
     private String secondaryDeserializer;
+    private URI proxyUrl;
 
     /**
      * Name of the application using the serializer/deserializer.
@@ -88,12 +90,12 @@ public class GlueSchemaRegistryConfiguration {
     }
 
     private void buildSchemaRegistryConfigs(Map<String, ?> configs) {
-        validateAndSetAWSSourceRegion(configs);
-        validateAndSetAWSSourceEndpoint(configs);
-        validateAndSetAWSTargetRegion(configs);
-        validateAndSetAWSTargetEndpoint(configs);
         validateAndSetAWSRegion(configs);
+        validateAndSetAWSSourceRegion(configs);
+        validateAndSetAWSTargetRegion(configs);
         validateAndSetAWSEndpoint(configs);
+        validateAndSetAWSSourceEndpoint(configs);
+        validateAndSetAWSTargetEndpoint(configs);
         validateAndSetRegistryName(configs);
         validateAndSetDescription(configs);
         validateAndSetAvroRecordType(configs);
@@ -107,6 +109,7 @@ public class GlueSchemaRegistryConfiguration {
         validateAndSetMetadata(configs);
         validateAndSetUserAgent(configs);
         validateAndSetSecondaryDeserializer(configs);
+        validateAndSetProxyUrl(configs);
     }
 
     private void validateAndSetSecondaryDeserializer(Map<String, ?> configs) {
@@ -145,7 +148,7 @@ public class GlueSchemaRegistryConfiguration {
         if (!EnumUtils.isValidEnum(AWSSchemaRegistryConstants.COMPRESSION.class, compressionType.toUpperCase())) {
             String errorMessage =
                     String.format("Invalid Compression type : %s, Accepted values are : %s", compressionType,
-                            AWSSchemaRegistryConstants.COMPRESSION.values());
+                                  AWSSchemaRegistryConstants.COMPRESSION.values());
             throw new AWSSchemaRegistryException(errorMessage);
         }
         return true;
@@ -180,10 +183,10 @@ public class GlueSchemaRegistryConfiguration {
                             .toUpperCase());
 
             if (this.compatibilitySetting == null
-                    || this.compatibilitySetting == Compatibility.UNKNOWN_TO_SDK_VERSION) {
+                || this.compatibilitySetting == Compatibility.UNKNOWN_TO_SDK_VERSION) {
                 String errorMessage = String.format("Invalid compatibility setting : %s, Accepted values are : %s",
-                        configs.get(AWSSchemaRegistryConstants.COMPATIBILITY_SETTING),
-                        Compatibility.knownValues());
+                                                    configs.get(AWSSchemaRegistryConstants.COMPATIBILITY_SETTING),
+                                                    Compatibility.knownValues());
                 throw new AWSSchemaRegistryException(errorMessage);
             }
         } else {
@@ -219,6 +222,17 @@ public class GlueSchemaRegistryConfiguration {
         }
     }
 
+    private void validateAndSetProxyUrl(Map<String, ?> configs) {
+        if (isPresent(configs, AWSSchemaRegistryConstants.PROXY_URL)) {
+            String value = (String) configs.get(AWSSchemaRegistryConstants.PROXY_URL);
+            try {
+                this.proxyUrl = URI.create(value);
+            } catch (IllegalArgumentException e) {
+                String message = String.format("Proxy URL property is not a valid URL: %s", value);
+                throw new AWSSchemaRegistryException(message, e);
+            }
+        }
+    }
 
     private void validateAndSetDescription(Map<String, ?> configs) throws AWSSchemaRegistryException {
         if (isPresent(configs, AWSSchemaRegistryConstants.DESCRIPTION)) {
@@ -278,7 +292,7 @@ public class GlueSchemaRegistryConfiguration {
                             .toString());
         } else {
             log.info("schemaAutoRegistrationEnabled is not defined in the properties. Using the default value {}",
-                    schemaAutoRegistrationEnabled);
+                     schemaAutoRegistrationEnabled);
         }
     }
 
@@ -347,9 +361,9 @@ public class GlueSchemaRegistryConfiguration {
 
     private Map<String, ?> getMapFromPropertiesFile(Properties properties) {
         return new HashMap<>(properties.entrySet()
-                .stream()
-                .collect(Collectors.toMap(e -> e.getKey()
-                        .toString(), e -> e.getValue())));
+                                     .stream()
+                                     .collect(Collectors.toMap(e -> e.getKey()
+                                             .toString(), e -> e.getValue())));
     }
 
     private String buildDescriptionFromProperties() throws AWSSchemaRegistryException {

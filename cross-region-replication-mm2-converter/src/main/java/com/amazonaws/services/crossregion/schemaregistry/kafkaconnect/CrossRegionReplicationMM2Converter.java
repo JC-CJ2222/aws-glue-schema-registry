@@ -11,6 +11,7 @@ import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySeria
 import com.amazonaws.services.schemaregistry.utils.AWSSchemaRegistryConstants;
 
 import kotlinx.serialization.SerializationException;
+import lombok.Data;
 import lombok.Getter;
 
 import org.apache.kafka.connect.data.*;
@@ -23,18 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Data
 public class CrossRegionReplicationMM2Converter implements Converter {
-    @Getter
+
     private GlueSchemaRegistryDeserializationFacade deserializationFacade;
-    @Getter
     private GlueSchemaRegistrySerializationFacade serializationFacade;
-    @Getter
     private AwsCredentialsProvider credentialsProvider;
-    @Getter
     private GlueSchemaRegistryDeserializerImpl deserializer;
-    @Getter
     private GlueSchemaRegistrySerializerImpl serializer;
-    @Getter
     private boolean isKey;
 
     /**
@@ -77,6 +74,14 @@ public class CrossRegionReplicationMM2Converter implements Converter {
         // Put the source and target regions into configurations respectively
         Map<String, Object> sourceConfigs = new HashMap<>(configs);
         Map<String, Object> targetConfigs = new HashMap<>(configs);
+
+
+        if (configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION) == null){
+            throw new DataException("Source Region is not provided.");
+        }
+        else if (configs.get(AWSSchemaRegistryConstants.AWS_TARGET_REGION) == null && configs.get(AWSSchemaRegistryConstants.AWS_REGION) == null){
+            throw new DataException("Target Region is not provided.");
+        }
 
         sourceConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION));
         targetConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_TARGET_REGION));
