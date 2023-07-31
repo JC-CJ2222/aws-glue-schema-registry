@@ -4,9 +4,12 @@ import com.amazonaws.services.crossregion.schemaregistry.kafkaconnect.CrossRegio
 import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistryKafkaSerializer;
 import com.amazonaws.services.schemaregistry.serializers.avro.AWSKafkaAvroSerializer;
 import com.amazonaws.services.schemaregistry.serializers.json.JsonDataWithSchema;
+import com.amazonaws.services.schemaregistry.serializers.protobuf.ProtobufGenerator;
 import com.amazonaws.services.schemaregistry.utils.AWSSchemaRegistryConstants;
 import com.amazonaws.services.schemaregistry.utils.AvroRecordType;
 import com.amazonaws.services.schemaregistry.utils.RecordGenerator;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.Message;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.AfterAll;
@@ -75,6 +78,9 @@ public class GlueSchemaRegistryConverterIntegrationTest {
         }
     }
 
+    /**
+     * Test when Avro schemas are being obtained from source region and registered in the target region successfully.
+     */
     @Test
     public void SchemaReplication_AvroData_Succeeds() {
         converter.configure(getConverterProperties(), false);
@@ -85,10 +91,10 @@ public class GlueSchemaRegistryConverterIntegrationTest {
         int index = 0;
         for (org.apache.avro.Schema schema : schemaList){
             GenericRecord record = recordList.get(index);
-            byte[] serialize = avroSerializer.serialize(schema.getName(), record);
+            schemasToCleanUp.add(schema.getName());
 
+            byte[] serialize = avroSerializer.serialize(schema.getName(), record);
             com.amazonaws.services.schemaregistry.common.Schema returnSchema = converter.getSchema(serialize);
-            schemasToCleanUp.add(returnSchema.getSchemaName());
             assertEquals(schema.toString(), returnSchema.getSchemaDefinition());
 
             UUID returnedUuid = converter.registerSchema(returnSchema);
@@ -97,6 +103,9 @@ public class GlueSchemaRegistryConverterIntegrationTest {
         }
     }
 
+    /**
+     * Test when JSON schemas are being obtained from source region and registered in the target region successfully.
+     */
     @Test
     public void SchemaReplication_JsonData_Succeeds() {
         converter.configure(getConverterProperties_Json(), false);
@@ -113,14 +122,58 @@ public class GlueSchemaRegistryConverterIntegrationTest {
 
             byte[] serializedBytes = glueSchemaRegistryKafkaSerializer.serialize(title, record);
             com.amazonaws.services.schemaregistry.common.Schema returnSchema = converter.getSchema(serializedBytes);
-
             assertEquals(record.getSchema(), returnSchema.getSchemaDefinition());
+
             UUID returnedUuid = converter.registerSchema(returnSchema);
             assertNotNull(returnedUuid);
             index++;
         }
     }
 
+    /**
+     * Test when Protobuf schemas are being obtained from source region and registered in the target region successfully.
+     */
+    @Test
+    public void SchemaReplication_ProtobufData_Succeeds() {
+        converter.configure(getConverterProperties_Protobuf(), false);
+        GlueSchemaRegistryKafkaSerializer glueSchemaRegistryKafkaSerializer = new GlueSchemaRegistryKafkaSerializer(getSourceGSRProperties_Protobuf());
+        List<Message> pojoMessages = ProtobufGenerator.getAllPOJOMessages();
+        List<DynamicMessage> dynamicMessages = ProtobufGenerator.getAllDynamicMessages();
+
+        int index = 0;
+        for (Message message: pojoMessages){
+            String title = "protobufSchema" + index;
+            schemasToCleanUp.add(title);
+
+            byte[] serializedBytes = glueSchemaRegistryKafkaSerializer.serialize(title, message);
+            com.amazonaws.services.schemaregistry.common.Schema returnSchema = converter.getSchema(serializedBytes);
+            assertNotNull(returnSchema);
+
+            UUID returnedUuid = converter.registerSchema(returnSchema);
+            assertNotNull(returnedUuid);
+            index ++;
+        }
+
+        for (Message message: dynamicMessages){
+            String title = "protobufSchema" + index;
+            schemasToCleanUp.add(title);
+
+            byte[] serializedBytes = glueSchemaRegistryKafkaSerializer.serialize(title, message);
+            com.amazonaws.services.schemaregistry.common.Schema returnSchema = converter.getSchema(serializedBytes);
+            assertNotNull(returnSchema);
+
+            UUID returnedUuid = converter.registerSchema(returnSchema);
+            assertNotNull(returnedUuid);
+            index ++;
+        }
+
+    }
+
+    /**
+     * To create a map of configurations for converter in Avro format.
+     *
+     * @return a map of configurations
+     */
     private static Map<String, Object> getConverterProperties() {
         Map<String, Object> props = new HashMap<>();
 
@@ -137,6 +190,11 @@ public class GlueSchemaRegistryConverterIntegrationTest {
         return props;
     }
 
+    /**
+     * To create a map of configurations for serializer in Avro format.
+     *
+     * @return a map of configurations
+     */
     private Map<String, Object> getSourceGSRProperties() {
         Map<String, Object> props = new HashMap<>();
 
@@ -149,15 +207,47 @@ public class GlueSchemaRegistryConverterIntegrationTest {
         return props;
     }
 
+    /**
+     * To create a map of configurations for converter in JSON format.
+     *
+     * @return a map of configurations
+     */
     private static Map<String, Object> getConverterProperties_Json() {
         Map<String, Object> props = getConverterProperties();
         props.replace(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.JSON.name());
         return props;
     }
 
+    /**
+     * To create a map of configurations for serializer in JSON format.
+     *
+     * @return a map of configurations
+     */
     private Map<String, Object> getSourceGSRProperties_Json() {
         Map<String, Object> props = getSourceGSRProperties();
         props.replace(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.JSON.name());
+        return props;
+    }
+
+    /**
+     * To create a map of configurations for converter in Protobuf format.
+     *
+     * @return a map of configurations
+     */
+    private static Map<String, Object> getConverterProperties_Protobuf() {
+        Map<String, Object> props = getConverterProperties();
+        props.replace(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.PROTOBUF.name());
+        return props;
+    }
+
+    /**
+     * To create a map of configurations for serializer in Protobuf format.
+     *
+     * @return a map of configurations
+     */
+    private Map<String, Object> getSourceGSRProperties_Protobuf() {
+        Map<String, Object> props = getSourceGSRProperties();
+        props.replace(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.PROTOBUF.name());
         return props;
     }
 }
