@@ -12,3 +12,4 @@
 **/*.factorypath
 **/dependency-reduced-pom.xml
 /integration-tests/logs/
+/integration-tests/src/test/resources/json/schema/

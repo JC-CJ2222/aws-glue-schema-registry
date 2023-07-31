@@ -68,7 +68,6 @@ public class CrossRegionReplicationMM2Converter implements Converter {
         this.isKey = isKey;
         new CrossRegionReplicationMM2ConverterConfig(configs);
 
-
         credentialsProvider = DefaultCredentialsProvider.builder().build();
 
         // Put the source and target regions into configurations respectively
@@ -83,8 +82,11 @@ public class CrossRegionReplicationMM2Converter implements Converter {
             throw new DataException("Target Region is not provided.");
         }
 
-        sourceConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION));
-        targetConfigs.put(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_TARGET_REGION));
+        sourceConfigs.replace(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION));
+        sourceConfigs.replace(AWSSchemaRegistryConstants.AWS_ENDPOINT, configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT));
+        targetConfigs.replace(AWSSchemaRegistryConstants.AWS_REGION, configs.get(AWSSchemaRegistryConstants.AWS_TARGET_REGION));
+        targetConfigs.replace(AWSSchemaRegistryConstants.AWS_ENDPOINT, configs.get(AWSSchemaRegistryConstants.AWS_TARGET_ENDPOINT));
+
 
         deserializationFacade =
                 GlueSchemaRegistryDeserializationFacade.builder()
