@@ -1,9 +1,12 @@
 package com.amazonaws.services.schemaregistry.integrationtests.mm2converter;
 
 import com.amazonaws.services.crossregion.schemaregistry.kafkaconnect.CrossRegionReplicationMM2Converter;
+import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistryKafkaSerializer;
 import com.amazonaws.services.schemaregistry.serializers.avro.AWSKafkaAvroSerializer;
+import com.amazonaws.services.schemaregistry.serializers.json.JsonDataWithSchema;
 import com.amazonaws.services.schemaregistry.utils.AWSSchemaRegistryConstants;
 import com.amazonaws.services.schemaregistry.utils.AvroRecordType;
+import com.amazonaws.services.schemaregistry.utils.RecordGenerator;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.AfterAll;
@@ -21,6 +24,7 @@ import software.amazon.awssdk.services.glue.model.SchemaId;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +41,6 @@ public class GlueSchemaRegistryConverterIntegrationTest {
     @BeforeEach
     public void setUp() {
         converter = new CrossRegionReplicationMM2Converter();
-        converter.configure(getConverterProperties(), false);
     }
 
     @AfterAll
@@ -74,7 +77,7 @@ public class GlueSchemaRegistryConverterIntegrationTest {
 
     @Test
     public void SchemaReplication_AvroData_Succeeds() {
-
+        converter.configure(getConverterProperties(), false);
         AWSKafkaAvroSerializer avroSerializer = new AWSKafkaAvroSerializer(defaultCredProvider, getSourceGSRProperties());
 
         List<Schema> schemaList = AvroSchemaGenerator.createTestSchema();
@@ -91,6 +94,30 @@ public class GlueSchemaRegistryConverterIntegrationTest {
             UUID returnedUuid = converter.registerSchema(returnSchema);
             assertNotNull(returnedUuid);
             index ++;
+        }
+    }
+
+    @Test
+    public void SchemaReplication_JsonData_Succeeds() {
+        converter.configure(getConverterProperties_Json(), false);
+        GlueSchemaRegistryKafkaSerializer glueSchemaRegistryKafkaSerializer = new GlueSchemaRegistryKafkaSerializer(getSourceGSRProperties_Json());
+        List<JsonDataWithSchema> wrapperJsonRecords = Arrays.stream(RecordGenerator.TestJsonRecord.values())
+                .filter(RecordGenerator.TestJsonRecord::isValid)
+                .map(RecordGenerator::createGenericJsonRecord)
+                .collect(Collectors.toList());
+
+        int index = 0;
+        for (JsonDataWithSchema record : wrapperJsonRecords){
+            String title = "jsonSchema" + index;
+            schemasToCleanUp.add(title);
+
+            byte[] serializedBytes = glueSchemaRegistryKafkaSerializer.serialize(title, record);
+            com.amazonaws.services.schemaregistry.common.Schema returnSchema = converter.getSchema(serializedBytes);
+
+            assertEquals(record.getSchema(), returnSchema.getSchemaDefinition());
+            UUID returnedUuid = converter.registerSchema(returnSchema);
+            assertNotNull(returnedUuid);
+            index++;
         }
     }
 
@@ -119,6 +146,18 @@ public class GlueSchemaRegistryConverterIntegrationTest {
         props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
         props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
 
+        return props;
+    }
+
+    private static Map<String, Object> getConverterProperties_Json() {
+        Map<String, Object> props = getConverterProperties();
+        props.replace(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.JSON.name());
+        return props;
+    }
+
+    private Map<String, Object> getSourceGSRProperties_Json() {
+        Map<String, Object> props = getSourceGSRProperties();
+        props.replace(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.JSON.name());
         return props;
     }
 }
