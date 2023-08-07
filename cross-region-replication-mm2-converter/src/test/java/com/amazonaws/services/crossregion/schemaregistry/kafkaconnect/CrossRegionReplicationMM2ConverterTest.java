@@ -308,6 +308,14 @@ public class CrossRegionReplicationMM2ConverterTest {
         assertEquals(converter.registerSchema(testSchema), protobufBytesVersionID);
     }
 
+    /**
+     * Test toConnectData when IllegalAccessException is thrown.
+     */
+    @Test
+    public void toConnectData_throwsException(){
+        Exception exception = assertThrows(RuntimeException.class, () -> converter.toConnectData(testTopic, genericBytes));
+        assertEquals("java.lang.IllegalAccessException: This method is not intended to be used here", exception.getMessage());
+    }
 
     /**
      * To create a map of configurations without source region.

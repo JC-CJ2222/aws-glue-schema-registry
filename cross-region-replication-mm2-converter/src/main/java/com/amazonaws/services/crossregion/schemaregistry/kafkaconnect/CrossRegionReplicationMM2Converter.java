@@ -37,14 +37,14 @@ public class CrossRegionReplicationMM2Converter implements Converter {
     /**
      * Constructor used by Kafka Connect user.
      */
-    public CrossRegionReplicationMM2Converter(){};
+    CrossRegionReplicationMM2Converter(){};
 
     /**
      * Constructor accepting AWSCredentialsProvider.
      *
      * @param credentialsProvider AWSCredentialsProvider instance.
      */
-    public CrossRegionReplicationMM2Converter(
+    CrossRegionReplicationMM2Converter(
             GlueSchemaRegistryDeserializationFacade deserializationFacade,
             GlueSchemaRegistrySerializationFacade serializationFacade,
             AwsCredentialsProvider credentialsProvider,
@@ -66,8 +66,6 @@ public class CrossRegionReplicationMM2Converter implements Converter {
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
         this.isKey = isKey;
-        new CrossRegionReplicationMM2ConverterConfig(configs);
-
 
         credentialsProvider = DefaultCredentialsProvider.builder().build();
 
@@ -125,9 +123,19 @@ public class CrossRegionReplicationMM2Converter implements Converter {
 
     }
 
+    /**
+     * This method is not intended to be used for the CrossRegionReplicationMM2Converter given that MM2 is a source connector
+     *
+     */
     @Override
-    public SchemaAndValue toConnectData(String s, byte[] bytes) {
-        return null;
+    public SchemaAndValue toConnectData(String topic, byte[] value) {
+
+        try {
+            throw new IllegalAccessException("This method is not intended to be used here");
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
