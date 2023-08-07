@@ -226,7 +226,7 @@ public class GlueSchemaRegistryConfiguration {
         if (isPresent(configs, AWSSchemaRegistryConstants.PROXY_URL)) {
                 String value = (String) configs.get(AWSSchemaRegistryConstants.PROXY_URL);
                 try {
-                    this.proxyUrl = URI.create(value);
+                        this.proxyUrl = URI.create(value);
                 } catch (IllegalArgumentException e) {
                         String message = String.format("Proxy URL property is not a valid URL: %s", value);
                         throw new AWSSchemaRegistryException(message, e);
