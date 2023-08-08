@@ -10,6 +10,7 @@ import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySeria
 import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializerImpl;
 import com.amazonaws.services.schemaregistry.utils.AWSSchemaRegistryConstants;
 
+import com.amazonaws.services.schemaregistry.utils.AvroRecordType;
 import kotlinx.serialization.SerializationException;
 import lombok.Data;
 import lombok.Getter;
@@ -19,6 +20,7 @@ import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.storage.Converter;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.services.glue.model.DataFormat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,12 +69,24 @@ public class CrossRegionReplicationMM2Converter implements Converter {
     public void configure(Map<String, ?> configs, boolean isKey) {
         this.isKey = isKey;
 
+        Map<String, Object> props = new HashMap<>();
+
+        props.put(AWSSchemaRegistryConstants.AWS_REGION, "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_ENDPOINT, "https://glue.us-east-1.amazonaws.com");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_REGION, "us-west-2");
+        props.put(AWSSchemaRegistryConstants.AWS_SOURCE_ENDPOINT, "https://glue.us-west-2.amazonaws.com");
+        props.put(AWSSchemaRegistryConstants.AWS_TARGET_REGION, "us-east-1");
+        props.put(AWSSchemaRegistryConstants.AWS_TARGET_ENDPOINT, "https://glue.us-east-1.amazonaws.com");
+        props.put(AWSSchemaRegistryConstants.DATA_FORMAT, DataFormat.AVRO.name());
+        props.put(AWSSchemaRegistryConstants.SCHEMA_AUTO_REGISTRATION_SETTING, true);
+        props.put(AWSSchemaRegistryConstants.AVRO_RECORD_TYPE, AvroRecordType.GENERIC_RECORD.getName());
+
 
         credentialsProvider = DefaultCredentialsProvider.builder().build();
 
         // Put the source and target regions into configurations respectively
-        Map<String, Object> sourceConfigs = new HashMap<>(configs);
-        Map<String, Object> targetConfigs = new HashMap<>(configs);
+        Map<String, Object> sourceConfigs = new HashMap<>(props);
+        Map<String, Object> targetConfigs = new HashMap<>(props);
 
 
         if (configs.get(AWSSchemaRegistryConstants.AWS_SOURCE_REGION) == null){
