@@ -37,14 +37,14 @@ public class CrossRegionReplicationMM2Converter implements Converter {
     /**
      * Constructor used by Kafka Connect user.
      */
-    CrossRegionReplicationMM2Converter(){};
+    public CrossRegionReplicationMM2Converter(){};
 
     /**
      * Constructor accepting AWSCredentialsProvider.
      *
      * @param credentialsProvider AWSCredentialsProvider instance.
      */
-    CrossRegionReplicationMM2Converter(
+    public CrossRegionReplicationMM2Converter(
             GlueSchemaRegistryDeserializationFacade deserializationFacade,
             GlueSchemaRegistrySerializationFacade serializationFacade,
             AwsCredentialsProvider credentialsProvider,
