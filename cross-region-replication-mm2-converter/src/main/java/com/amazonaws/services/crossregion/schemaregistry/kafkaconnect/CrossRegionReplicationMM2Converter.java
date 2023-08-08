@@ -67,6 +67,7 @@ public class CrossRegionReplicationMM2Converter implements Converter {
     public void configure(Map<String, ?> configs, boolean isKey) {
         this.isKey = isKey;
 
+
         credentialsProvider = DefaultCredentialsProvider.builder().build();
 
         // Put the source and target regions into configurations respectively
