@@ -44,6 +44,7 @@ public class GlueSchemaRegistryConfiguration {
     private AWSSchemaRegistryConstants.COMPRESSION compressionType = AWSSchemaRegistryConstants.COMPRESSION.NONE;
     private String endPoint;
     private String region;
+    //TODO: Remove configs that are not useful non replication use-cases.
     private String sourceEndPoint;
     private String sourceRegion;
     private String targetEndPoint;
