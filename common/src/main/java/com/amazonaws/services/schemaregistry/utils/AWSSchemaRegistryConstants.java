@@ -46,7 +46,6 @@ public final class AWSSchemaRegistryConstants {
      * AWS target region to use while initializing the client for service.
      */
     public static final String AWS_TARGET_REGION = "target.region";
-
     /**
      * Header Version Byte.
      */
