@@ -48,7 +48,7 @@ public class CrossRegionReplicationConverter implements Converter {
     }
 
     /**
-     * Configure the MM2 Schema Replication Converter.
+     * Configure the Schema Replication Converter.
      * @param configs configuration elements for the converter
      * @param isKey true if key, false otherwise
      */
@@ -93,7 +93,7 @@ public class CrossRegionReplicationConverter implements Converter {
     }
 
     /**
-     * This method is not intended to be used for the CrossRegionReplicationMM2Converter given that MM2 is a source connector
+     * This method is not intended to be used for the CrossRegionReplicationConverter given it is integrated with a source connector
      *
      */
     @Override

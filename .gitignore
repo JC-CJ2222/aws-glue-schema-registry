@@ -11,5 +11,4 @@
 **/*.classpath
 **/*.factorypath
 **/dependency-reduced-pom.xml
-/integration-tests/logs/
-/integration-tests/kafka_2.13-3.4.0/
+/integration-tests/*
